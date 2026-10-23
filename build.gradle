@@ -1,0 +1,92 @@
+plugins {
+    id 'net.minecraftforge.gradle' version '6.0.19' // The latest version of the ForgeGradle plugin
+}
+
+// Apply the ForgeGradle plugin
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+// Load properties from gradle.properties
+properties {
+    minecraft_version = '1.20.1'
+    forge_version = '47.1.0'
+    mod_version = '1.0.0'
+    maven_group = 'com.enderdevelopment'
+    archives_base_name = 'isekai'
+}
+
+// Configure the ForgeGradle plugin
+forge {
+    version = project.forge_version
+    runs {
+        client {
+            property 'forge.logging.markers', 'REGISTRIES'
+        }
+        server {
+            property 'forge.logging.markers', 'REGISTRIES'
+        }
+        data {
+            property 'forge.logging.markers', 'REGISTRIES'
+        }
+    }
+}
+
+// Configure the Minecraft run configurations
+minecraft {
+    mappings channel: 'official', version: project.minecraft_version
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.file.level', 'debug'
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.file.level', 'debug'
+        }
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.file.level', 'debug'
+        }
+    }
+}
+
+// Configure the Java source compatibility
+sourceCompatibility = JavaVersion.VERSION_17
+
+// Configure the repositories
+repositories {
+    mavenCentral()
+    maven {
+        name = 'forge'
+        url = "https://files.minecraftforge.net/maven"
+    }
+}
+
+// Configure the dependencies
+dependencies {
+    minecraft "net.minecraftforge:forge:${project.forge_version}_mapped_snapshot_${project.minecraft_version}"
+    compileOnly "net.minecraft:client:${project.minecraft_version}-sources"
+    compileOnly "net.minecraft:server:${project.minecraft_version}-sources"
+}
+
+// Configure the build process
+processResources {
+    inputs.property "version", project.archiveVersion
+    inputs.property "mcversion", project.minecraft_version
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version':project.archiveVersion, 'mcversion':project.minecraft_version
+    }
+}
+
+// Configure the jar task
+jar {
+    archiveFileName = "${project.archives_base_name}-${project.mod_version}.jar"
+    from {
+        configurations.compileClasspath.collect {
+            it.isDirectory() ? project.zipTree(it) : it
+        }
+    }
+}
